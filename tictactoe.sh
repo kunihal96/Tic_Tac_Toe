@@ -1,3 +1,4 @@
+
 #! /bin/bash
 echo Tic-Tac-Toe problem solved here
 function resetBoard() #reset the board by making all array position as '.'
@@ -14,10 +15,30 @@ function toss()
   tossResult=$(( RANDOM % 2 ))
   if ((tossResult==0))
   then
-     echo "Player will play first"
+     echo "Please select X or O"
+     read playerletter
+     if ((playerletter=="X"))
+     then
+         computerletter="Y"
+     else
+         computerletter="X"
+     fi
+     echo "Player won will play first"
   else
-     echo "Computer will play first"
+     random=$(( RANDOM % 2 ))
+     if ((tossResult==0))
+     then
+        computerletter="X"
+        playerletter="Y"
+     else
+        computerletter="Y"
+        playerletter="X"
+     fi
+     echo "Computer won will play first"
   fi
+ 
+  echo "Player letter " $playerletter
+  echo "Computer letter" $computerletter
 }
 
 boardSize=3
