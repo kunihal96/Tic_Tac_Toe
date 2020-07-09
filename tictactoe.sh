@@ -1,6 +1,5 @@
 #! /bin/bash
 echo Tic-Tac-Toe problem solved here
-
 function resetBoard() #reset the board by making all array position as '.'
 {
    boardLength=$1
@@ -232,21 +231,32 @@ function computerNextMove()
            played=1
        fi
     fi
+   
+    if ((played==0))
+    then
+       #play for center
+       local centerIndex=$((($boardLength-1)/2))
+  if [ ${Board[$centerIndex]} = "." ]
+  then
+  Board[$centerIndex]=$computerletter
+  played=1
+  fi
+    fi
 }
    
 boardSize=3
 resetBoard $( expr $boardSize '*' $boardSize)
 toss
    
-#Board[0]="O"
+Board[0]="A"
 Board[1]="X"
 Board[3]="X"
 #Board[4]="X"
 Board[5]="O"
-#Board[2]="O"
+Board[2]="O"
 #Board[7]="M"
-#Board[6]="O"
-#Board[8]="X"
+Board[6]="X"
+Board[8]="S"
    
 displayBoard
    
