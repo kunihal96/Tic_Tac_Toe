@@ -198,12 +198,15 @@ Board[8]="X"
 displayBoard
 
 #Player or Computer Move
-if (($(isTie)==1))
+if (($(checkIfWon)==1))
+then 
+   echo "Match Won"
+elif (($(isTie)==1))
 then
    echo "Match Drawn"
-elif (($(checkIfWon)==1))
-then
-   echo "Match Won"
 else
    echo "Change Turn"
 fi
+
+#computer steps will be defined in further use cases
+
