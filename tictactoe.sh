@@ -1,5 +1,7 @@
 #! /bin/bash
+
 echo Tic-Tac-Toe problem solved here
+
 function resetBoard() #reset the board by making all array position as '.'
 {
    boardLength=$1
@@ -8,14 +10,14 @@ function resetBoard() #reset the board by making all array position as '.'
       Board[i]=.
    done
 }
-
+   
 function toss()
 {
    tossResult=$(( RANDOM % 2 ))
-   if ((tossResult==0))
-   then
+   case $tossResult in
+   0)
       echo "Please select X or O"
-      read playerletter 
+      read playerletter
       if ((playerletter=="X"))
       then
           computerletter="O"
@@ -23,7 +25,8 @@ function toss()
           computerletter="X"
       fi
       echo "Player won will play first"
-   else
+      ;;
+   1)
       random=$(( RANDOM % 2 ))
       if ((tossResult==0))
       then
@@ -34,12 +37,13 @@ function toss()
          playerletter="X"
       fi
       echo "Computer won will play first"
-   fi
+      ;;
+   esac
    
    echo "Player letter " $playerletter
    echo "Computer letter" $computerletter
 }
-
+   
 function displayBoard()
 {
    echo
@@ -60,7 +64,7 @@ function displayBoard()
       ((j++))
    done
 }
-
+   
 function isTie()
 {
    tie=1
@@ -74,125 +78,103 @@ function isTie()
    done
    echo $tie
 }
-
+   
 function checkIfWon()
 {
    win=0
    #check for rows
-   for ((i=0;i<$boardSize;i++))
+   for ((row=0;row<$boardSize;row++))
    do
       if(($win==1))
       then
          break
       fi
       win=1
-      arrayIndex=$((($i)*$boardSize))
+      arrayIndex=$((($row)*$boardSize))
       firstElement=${Board[$arrayIndex]}
-     
-      if [ $firstElement != '.' ]
-      then
-         for ((j=0;j<$boardSize;j++))
-         do
-            arrayIndex=$((($i)*$boardSize+($j)))
-      
-            if [[ $firstElement != ${Board[arrayIndex]} ]]
-            then
-               win=0
-               break
-            fi
-         done
-      else
-         win=0
-      fi
-   done
-   
-   if((win==0))
-   then
-      #check for Columns
-      for ((i=0;i<$boardSize;i++))
+      for ((column=0;column<$boardSize;column++))
       do
-         if(($win==1))
+         arrayIndex=$((($row)*$boardSize+($column)))
+         if [[ $firstElement != ${Board[arrayIndex]} ]] || [[ ${Board[arrayIndex]} == '.' ]]
          then
-            break
-         fi
-         win=1
-         firstElement=${Board[$i]}
-     
-         if [ $firstElement != '.' ]
-         then
-            for ((j=i;j<$boardLength;j+=$boardSize))
-            do
-               if [[ $firstElement != ${Board[$j]} ]]
-               then
-                  win=0
-                  break
-               fi
-            done
-         else
-            win=0
+             win=0
+             break
          fi
       done
-   fi
-   
-   #first Diagonal
+   done
+
    if((win==0))
    then
-       firstElement=${Board[0]}
-       win=1
-       if [ $firstElement != '.' ]
-       then
-           for ((i=0;i<$boardSize;i++))
+       #check for Columns
+       for ((row=0;row<$boardSize;row++))
+       do
+          if(($win==1))
+           then
+               break
+           fi
+           win=1
+           firstElement=${Board[$row]}
+           for ((column=row;column<$boardLength;column+=$boardSize))
            do
-              for ((j=0;j<$boardSize;j++))
-              do
-                  if ((i==j)) 
+              if [[ $firstElement != ${Board[$column]} ]] || [[ ${Board[$column]} == '.' ]]
+              then
+                 win=0
+                 break
+              fi
+           done
+       done
+    fi
+     
+    #first Diagonal
+    if((win==0))
+    then
+        firstElement=${Board[0]}
+        win=1
+        for ((row=0;row<$boardSize;row++))
+        do
+           for ((column=0;column<$boardSize;column++))
+           do
+              if ((row==column))
+              then
+                  arrayIndex=$((($row)*$boardSize+($column)))
+                  if [[ $firstElement != ${Board[$arrayIndex]} ]] || [[ ${Board[$arrayIndex]} == '.' ]]
                   then
-                     arrayIndex=$((($i)*$boardSize+($j)))
-                     if [[ $firstElement != ${Board[$arrayIndex]} ]]
-                     then
+                      win=0
+                      break
+                  fi
+              fi
+           done
+        done
+    fi
+     
+    #second diagonal
+    if((win==0))
+    then
+        firstElement=${Board[$boardSize-1]}
+        win=1
+        for ((row=0;row<$boardSize;row++))
+        do
+            for ((column=0;column<$boardSize;column++))
+            do
+                if ((row+column==$boardSize-1))
+                then
+                    arrayIndex=$((($row)*$boardSize+($column)))
+                    if [[ $firstElement != ${Board[$arrayIndex]} ]] || [[ ${Board[$arrayIndex]} == '.' ]]
+                    then
                         win=0
                         break
-                     fi
-                  fi
-              done
-           done
-        else
-           win=0
-        fi
+                    fi
+                fi
+            done
+        done
     fi
    
-   #second diagonal
-   if((win==0))
-   then
-       firstElement=${Board[$boardSize-1]}
-       if [ $firstElement != '.' ]
-       then
-           win=1
-           for ((i=0;i<$boardSize;i++))
-           do
-              for ((j=0;j<$boardSize;j++))
-              do
-                  if ((i+j==$boardSize-1)) 
-                  then
-                     arrayIndex=$((($i)*$boardSize+($j)))
-                     if [[ $firstElement != ${Board[$arrayIndex]} ]]
-                     then
-                        win=0
-                        break
-                     fi
-                  fi
-              done
-           done
-        else
-           win=0
-        fi
-   fi
-   
-   echo $win
+    echo $win
 }
-
+   
 function computerNextMove()
 {
+    played=0
     #Play to win
     for ((j=0;j<$boardLength;j++))
     do
@@ -201,38 +183,57 @@ function computerNextMove()
            Board[j]=$computerletter
            if (($(checkIfWon)==1))
            then
+              played=1
               break
            else
               Board[j]='.'
            fi
         fi
     done
+   
+    if ((played==0))
+    then
+       #Play to Block
+       for ((j=0;j<$boardLength;j++))
+       do
+          if [ ${Board[j]} == '.' ]
+          then
+             Board[j]=$playerletter
+             if (($(checkIfWon)==1))
+             then
+                Board[j]=$computerletter
+                break
+             else
+                Board[j]='.'
+             fi
+          fi
+       done
+    fi
 }
-
+   
 boardSize=3
 resetBoard $( expr $boardSize '*' $boardSize)
 toss
-
-Board[0]="X"
-#Board[1]="X"
-#Board[3]="X"
+   
+Board[0]="O"
+Board[1]="X"
+Board[3]="X"
 Board[4]="X"
-#Board[5]="O"
-#Board[2]="O"
+Board[5]="O"
+Board[2]="O"
 #Board[7]="M"
-#Board[6]="O"
+Board[6]="O"
 Board[8]="X"
-
+   
 displayBoard
-
+   
 computerNextMove
-
+   
 displayBoard
-
+   
 #Player or Computer Move
-
 if (($(checkIfWon)==1))
-then 
+then
    echo "Match Won"
 elif (($(isTie)==1))
 then
