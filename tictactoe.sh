@@ -242,6 +242,17 @@ function computerNextMove()
   played=1
   fi
     fi
+   
+    #Play remaining position
+    for ((j=0;j<$boardLength;j++))
+    do
+       if [ ${Board[j]} == '.' ]
+       then
+           Board[j]=$computerletter
+           played=1
+           break
+        fi
+    done
 }
    
 boardSize=3
@@ -251,7 +262,7 @@ toss
 Board[0]="A"
 Board[1]="X"
 Board[3]="X"
-#Board[4]="X"
+Board[4]="M"
 Board[5]="O"
 Board[2]="O"
 #Board[7]="M"
