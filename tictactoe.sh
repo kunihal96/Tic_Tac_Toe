@@ -61,6 +61,8 @@ function displayBoard()
       fi
       ((j++))
    done
+   
+   isGameOver
 }
    
 function isTie()
@@ -170,8 +172,9 @@ function checkIfWon()
     echo $win
 }
    
-function computerNextMove()
+function computerTurn()
 {
+    currentChance="Computer"
     played=0
     #Play to win
     for ((j=0;j<$boardLength;j++))
@@ -253,27 +256,74 @@ function computerNextMove()
            break
         fi
     done
+   
+    displayBoard
+}
+
+function playerturn()
+{
+    currentChance="Player"
+    while(true)
+    do
+        read -p "Enter Row:" row
+        read -p "Enter Column:" column
+
+        arrayIndex=$((($row-1)*$boardSize+($column-1)))
+
+        if [[ ${Board[$arrayIndex]} != '.' ]]
+        then
+            echo "Position already filled. Choose another."
+        else
+            Board[$arrayIndex]=$playerletter
+            break
+        fi
+    done
+   
+    displayBoard
+}
+
+function isGameOver()
+{
+    gameOver=0
+    if (($(checkIfWon)==1))
+    then
+        echo "Game won by " $currentChance
+        gameOver=1
+    elif (($(isTie)==1))
+    then
+        echo "Match Drawn"
+        gameOver=1
+    fi
 }
    
 boardSize=3
 resetBoard $( expr $boardSize '*' $boardSize)
 toss
    
-Board[0]="A"
-Board[1]="X"
-Board[3]="X"
-Board[4]="M"
-Board[5]="O"
-Board[2]="O"
-#Board[7]="M"
-Board[6]="X"
-Board[8]="S"
+
+while(true)
+do
+    if ((tossResult==0))
+    then
+        playerturn
+        if (( $gameOver==0 ))
+        then
+            computerTurn
+        fi
+    else
+        computerTurn
+        if (( $gameOver==0 ))
+        then
+            playerturn
+        fi
+    fi
    
-displayBoard
+    if (( $gameOver==1 ))
+    then
+       break
+    fi
    
-computerNextMove
-   
-displayBoard
+done
    
 #Player or Computer Move
 if (($(checkIfWon)==1))
