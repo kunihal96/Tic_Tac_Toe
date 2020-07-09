@@ -139,65 +139,98 @@ function checkIfWon()
    then
        firstElement=${Board[0]}
        win=1
-       for ((i=0;i<$boardSize;i++))
-       do
-          for ((j=0;j<$boardSize;j++))
-          do
-              if ((i==j)) 
-              then
-                 arrayIndex=$((($i)*$boardSize+($j)))
-                 if [[ $firstElement != ${Board[$arrayIndex]} ]]
-                 then
-                    win=0
-                    break
-                 fi
-              fi
-          done
-       done
+       if [ $firstElement != '.' ]
+       then
+           for ((i=0;i<$boardSize;i++))
+           do
+              for ((j=0;j<$boardSize;j++))
+              do
+                  if ((i==j)) 
+                  then
+                     arrayIndex=$((($i)*$boardSize+($j)))
+                     if [[ $firstElement != ${Board[$arrayIndex]} ]]
+                     then
+                        win=0
+                        break
+                     fi
+                  fi
+              done
+           done
+        else
+           win=0
+        fi
     fi
    
    #second diagonal
    if((win==0))
    then
        firstElement=${Board[$boardSize-1]}
-       win=1
-       for ((i=0;i<$boardSize;i++))
-       do
-          for ((j=0;j<$boardSize;j++))
-          do
-              if ((i+j==$boardSize-1)) 
-              then
-                 arrayIndex=$((($i)*$boardSize+($j)))
-                 if [[ $firstElement != ${Board[$arrayIndex]} ]]
-                 then
-                    win=0
-                    break
-                 fi
-              fi
-          done
-       done
+       if [ $firstElement != '.' ]
+       then
+           win=1
+           for ((i=0;i<$boardSize;i++))
+           do
+              for ((j=0;j<$boardSize;j++))
+              do
+                  if ((i+j==$boardSize-1)) 
+                  then
+                     arrayIndex=$((($i)*$boardSize+($j)))
+                     if [[ $firstElement != ${Board[$arrayIndex]} ]]
+                     then
+                        win=0
+                        break
+                     fi
+                  fi
+              done
+           done
+        else
+           win=0
+        fi
    fi
    
    echo $win
+}
+
+function computerNextMove()
+{
+    #Play to win
+    for ((j=0;j<$boardLength;j++))
+    do
+       if [ ${Board[j]} == '.' ]
+       then
+           Board[j]=$computerletter
+           if (($(checkIfWon)==1))
+           then
+              break
+           else
+              Board[j]='.'
+           fi
+        fi
+    done
 }
 
 boardSize=3
 resetBoard $( expr $boardSize '*' $boardSize)
 toss
 
-Board[0]="O"
-Board[1]="X"
-Board[3]="X"
+Board[0]="X"
+#Board[1]="X"
+#Board[3]="X"
 Board[4]="X"
-Board[5]="O"
-Board[2]="O"
-Board[7]="M"
-Board[6]="O"
+#Board[5]="O"
+#Board[2]="O"
+#Board[7]="M"
+#Board[6]="O"
 Board[8]="X"
 
 displayBoard
 
+computerNextMove
+
+displayBoard
+
 #Player or Computer Move
+
 if (($(checkIfWon)==1))
 then 
    echo "Match Won"
@@ -207,6 +240,3 @@ then
 else
    echo "Change Turn"
 fi
-
-#computer steps will be defined in further use cases
-
