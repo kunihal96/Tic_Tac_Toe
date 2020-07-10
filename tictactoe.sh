@@ -239,25 +239,44 @@ function computerTurn()
     then
        #play for center
        local centerIndex=$((($boardLength-1)/2))
-  if [ ${Board[$centerIndex]} = "." ]
-  then
-  Board[$centerIndex]=$computerletter
-  played=1
-  fi
+      if [ ${Board[$centerIndex]} = "." ]
+      then
+         Board[$centerIndex]=$computerletter
+         played=1
+      fi
     fi
    
-    #Play remaining position
-    for ((j=0;j<$boardLength;j++))
-    do
-       if [ ${Board[j]} == '.' ]
-       then
-           Board[j]=$computerletter
-           played=1
-           break
-        fi
-    done
+    if ((played==0))
+    then
+       #Play remaining position
+       for ((j=0;j<$boardLength;j++))
+       do
+          if [ ${Board[j]} == '.' ]
+          then
+              Board[j]=$computerletter
+              played=1
+              break
+          fi
+       done
+    fi
    
     displayBoard
+}
+
+function getAvailableMoves()
+{
+    for ((row=0;row<$boardSize;row++))
+    do
+        for ((column=0;column<$boardSize;column++))
+        do
+           arrayIndex=$((($row)*$boardSize+($column)))
+           if [[ ${Board[$arrayIndex]} == "." ]]
+           then
+              avaiableMoves+=$(($row+1))','$(($column+1))' '
+           fi
+        done
+    done
+    echo $avaiableMoves
 }
 
 function playerturn()
@@ -265,6 +284,8 @@ function playerturn()
     currentChance="Player"
     while(true)
     do
+        local moves=$(getAvailableMoves)
+        echo "Avaialble moves: " $moves
         read -p "Enter Row:" row
         read -p "Enter Column:" column
 
@@ -295,43 +316,36 @@ function isGameOver()
         gameOver=1
     fi
 }
+
+function play()
+{
+   displayBoard
+   while(true)
+   do
+      if ((tossResult==0))
+      then
+          playerturn
+          if (( $gameOver==0 ))
+          then
+             computerTurn
+          fi
+      else
+          computerTurn
+          if (( $gameOver==0 ))
+          then
+            playerturn
+          fi
+      fi
+   
+      if (( $gameOver==1 ))
+      then
+         break
+      fi
+   done
+}
    
 boardSize=3
 resetBoard $( expr $boardSize '*' $boardSize)
 toss
-   
+play  
 
-while(true)
-do
-    if ((tossResult==0))
-    then
-        playerturn
-        if (( $gameOver==0 ))
-        then
-            computerTurn
-        fi
-    else
-        computerTurn
-        if (( $gameOver==0 ))
-        then
-            playerturn
-        fi
-    fi
-   
-    if (( $gameOver==1 ))
-    then
-       break
-    fi
-   
-done
-   
-#Player or Computer Move
-if (($(checkIfWon)==1))
-then
-   echo "Match Won"
-elif (($(isTie)==1))
-then
-   echo "Match Drawn"
-else
-   echo "Change Turn"
-fi
