@@ -1,11 +1,13 @@
 #! /bin/bash
+
 echo Tic-Tac-Toe problem solved here
+
 function resetBoard() #reset the board by making all array position as '.'
 {
    boardLength=$1
-   for ((i=0;i<$boardLength;i++))
+   for ((index=0;index<$boardLength;index++))
    do
-      Board[i]=.
+      Board[$index]=.
    done
 }
    
@@ -15,51 +17,52 @@ function toss()
    case $tossResult in
    0)
       echo "Please select X or O"
-      read playerletter
-      if ((playerletter=="X"))
-      then
-          computerletter="O"
-      else
-          computerletter="X"
-      fi
-      echo "Player won will play first"
-      ;;
+      read playerLetter
+      case $playerLetter in
+      "X")
+        computerLetter="O"
+       ;;
+      "O")
+        computerLetter="X"
+       ;;
+      esac
+     ;;
    1)
       random=$(( RANDOM % 2 ))
-      if ((tossResult==0))
-      then
-         computerletter="X"
-         playerletter="O"
+      if ((random==0))
+      then 
+         computerLetter="X"
+         playerLetter="O"
       else
-         computerletter="O"
-         playerletter="X"
+         computerLetter="O"
+         playerLetter="X"
       fi
       echo "Computer won will play first"
       ;;
    esac
    
-   echo "Player letter " $playerletter
-   echo "Computer letter" $computerletter
+   echo "Player letter " $playerLetter
+   echo "Computer letter" $computerLetter
 }
    
 function displayBoard()
 {
    echo
-   j=1
-   for ((i=0;i<$boardLength;i++))
+   column=1
+   for ((index=0;index<$boardLength;index++))
    do
-      if ((j==$boardSize))
+      if ((column==$boardSize))
       then
-         echo ' ' ${Board[i]}
-         if ((i!=$boardLength-1))
+         echo ' ' ${Board[$index]}
+         if ((index!=$boardLength-1))
          then
             echo '----- ----- -----'
          fi
-         j=0
+         column=0
       else
-         echo -n ' ' ${Board[i]} ' |'
+         echo -n ' ' ${Board[$index]} ' |'
       fi
-      ((j++))
+      ((column++))
    done
    
    isGameOver
@@ -68,9 +71,9 @@ function displayBoard()
 function isTie()
 {
    tie=1
-   for ((i=0;i<$boardLength;i++))
+   for ((index=0;index<$boardLength;index++))
    do
-      if [ ${Board[$i]} == "." ]
+      if [[ ${Board[$index]} == "." ]]
       then
          tie=0
          break
@@ -95,7 +98,7 @@ function checkIfWon()
       for ((column=0;column<$boardSize;column++))
       do
          arrayIndex=$((($row)*$boardSize+($column)))
-         if [[ $firstElement != ${Board[arrayIndex]} ]] || [[ ${Board[arrayIndex]} == '.' ]]
+         if [[ $firstElement != ${Board[$arrayIndex]} ]] || [[ ${Board[$arrayIndex]} == '.' ]]
          then
              win=0
              break
@@ -177,17 +180,17 @@ function computerTurn()
     currentChance="Computer"
     played=0
     #Play to win
-    for ((j=0;j<$boardLength;j++))
+    for ((index=0;index<$boardLength;index++))
     do
-       if [ ${Board[j]} == '.' ]
+       if [ ${Board[$index]} == '.' ]
        then
-           Board[j]=$computerletter
+           Board[$index]=$computerLetter
            if (($(checkIfWon)==1))
            then
               played=1
               break
            else
-              Board[j]='.'
+              Board[$index]='.'
            fi
         fi
     done
@@ -195,18 +198,18 @@ function computerTurn()
     if ((played==0))
     then
        #Play to Block
-       for ((j=0;j<$boardLength;j++))
+       for ((index=0;index<$boardLength;index++))
        do
-          if [ ${Board[j]} == '.' ]
+          if [ ${Board[$index]} == '.' ]
           then
-             Board[j]=$playerletter
+             Board[$index]=$playerLetter
              if (($(checkIfWon)==1))
              then
-                Board[j]=$computerletter
+                Board[$index]=$computerLetter
                 played=1
                 break
              else
-                Board[j]='.'
+                Board[$index]='.'
              fi
           fi
        done
@@ -218,19 +221,19 @@ function computerTurn()
        #Play for Corners
        if [[ ${Board[0]} == "." ]]
        then
-           Board[0]=$computerletter
+           Board[0]=$computerLetter
            played=1
        elif [[ ${Board[$(($boardSize-1))]} == "." ]]
        then
-           Board[$(($boardSize-1))]=$computerletter
+           Board[$(($boardSize-1))]=$computerLetter
            played=1
        elif [[ ${Board[$((($boardSize-1)*$boardSize))]} == "." ]]
        then
-           Board[$((($boardSize-1)*$boardSize))]=$computerletter
+           Board[$((($boardSize-1)*$boardSize))]=$computerLetter
            played=1
        elif [[ ${Board[$((($boardSize-1)*$boardSize+($boardSize-1)))]} == "." ]]
        then
-           Board[$((($boardSize-1)*$boardSize+($boardSize-1)))] == "." ]]
+           Board[$((($boardSize-1)*$boardSize+($boardSize-1)))] == $computerLetter ]]
            played=1
        fi
     fi
@@ -241,7 +244,7 @@ function computerTurn()
        local centerIndex=$((($boardLength-1)/2))
       if [ ${Board[$centerIndex]} = "." ]
       then
-         Board[$centerIndex]=$computerletter
+         Board[$centerIndex]=$computerLetter
          played=1
       fi
     fi
@@ -249,11 +252,11 @@ function computerTurn()
     if ((played==0))
     then
        #Play remaining position
-       for ((j=0;j<$boardLength;j++))
+       for ((index=0;index<$boardLength;index++))
        do
-          if [ ${Board[j]} == '.' ]
+          if [ ${Board[$index]} == '.' ]
           then
-              Board[j]=$computerletter
+              Board[$index]=$computerLetter
               played=1
               break
           fi
@@ -279,7 +282,7 @@ function getAvailableMoves()
     echo $avaiableMoves
 }
 
-function playerturn()
+function playerTurn()
 {
     currentChance="Player"
     while(true)
@@ -295,7 +298,7 @@ function playerturn()
         then
             echo "Position already filled. Choose another."
         else
-            Board[$arrayIndex]=$playerletter
+            Board[$arrayIndex]=$playerLetter
             break
         fi
     done
@@ -324,7 +327,7 @@ function play()
    do
       if ((tossResult==0))
       then
-          playerturn
+          playerTurn
           if (( $gameOver==0 ))
           then
              computerTurn
@@ -333,7 +336,7 @@ function play()
           computerTurn
           if (( $gameOver==0 ))
           then
-            playerturn
+            playerTurn
           fi
       fi
    
@@ -347,5 +350,4 @@ function play()
 boardSize=3
 resetBoard $( expr $boardSize '*' $boardSize)
 toss
-play  
-
+play
